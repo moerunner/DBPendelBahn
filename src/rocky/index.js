@@ -14,9 +14,9 @@ rocky.on('hourchange', function(event) {
 rocky.on('minutechange', function(event) {
   var d = new Date();
   // Send a message to fetch the weather information (on startup and every hour)
-  // if ((d.getMinutes +3)%10 === 0){
+  //if ((d.getMinutes +3)%10 === 0){  //only look at 7, 17, 27 ...
     rocky.postMessage({'fetchdb': true});
-  // }
+  //}
   // Tick every minute
   rocky.requestDraw();
 });
@@ -71,6 +71,18 @@ rocky.on('draw', function(event) {
 
   // Draw the hour hand
   drawHand(ctx, cx, cy, hourAngle, maxLength * 0.6, 'white');
+  
+  //draw point
+  ctx.strokeStyle = 'white';
+  
+  for (var i = 0; 12 > i ; i++) {
+    ctx.beginPath();
+    var arcelmin= (2 * Math.PI)/12*i ;//- (2 * Math.PI)/12* (1/36);
+    var arcelmax= (2 * Math.PI)/12*i ;//+ (2 * Math.PI)/12* (1/36); 
+    ctx.arc(cx,cy, maxLength, arcelmin, arcelmax, false);
+    ctx.stroke();
+  }
+  
 });
 
 function drawtransport(ctx, transport) {
@@ -82,7 +94,7 @@ function drawtransport(ctx, transport) {
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
   ctx.font = '14px Gothic';
-  ctx.fillText(transportString, ctx.canvas.unobstructedWidth /2 , 2); //  ... unobstructedWidth/2, ...
+  ctx.fillText(transportString, ctx.canvas.unobstructedWidth/2 , ctx.canvas.unobstructedHeight*0.65 ); //  ... unobstructedWidth/2, ...
 }
 
 function drawHand(ctx, cx, cy, angle, length, color) {
