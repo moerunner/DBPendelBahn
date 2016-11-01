@@ -1,9 +1,13 @@
 {
-    "author": "m.wiewiegand@gmail.com",
+    "author": "Wiegand",
     "dependencies": {},
     "keywords": [],
     "name": "db-pendel-pebble",
     "pebble": {
+        "capabilities": [
+            "location",
+            "configurable"
+        ],
         "displayName": "DB Pendel P",
         "enableMultiJS": true,
         "messageKeys": [],
@@ -14,7 +18,9 @@
         "sdkVersion": "3",
         "targetPlatforms": [
             "basalt",
-            "chalk"
+            "chalk",
+            "diorite",
+            "emery"
         ],
         "uuid": "69a7adb8-e99a-4349-9ed3-f96fc03955c7",
         "watchapp": {
