@@ -2,13 +2,13 @@
     "author": "Wiegand",
     "dependencies": {},
     "keywords": [],
-    "name": "db-pendel-pebble",
+    "name": "db-pendel-bahn",
     "pebble": {
         "capabilities": [
             "location",
             "configurable"
         ],
-        "displayName": "DB Pendel P",
+        "displayName": "DB Pendel Bahn",
         "enableMultiJS": true,
         "messageKeys": [],
         "projectType": "rocky",
@@ -27,5 +27,5 @@
             "watchface": true
         }
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
 }

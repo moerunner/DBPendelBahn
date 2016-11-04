@@ -1,11 +1,11 @@
 module.exports = [
   {
     "type": "heading",
-    "defaultValue": "DB Pendel Pebble"
+    "defaultValue": "DB Pendel Bahn"
   },
   {
     "type": "text",
-    "defaultValue": "configuration"
+    "defaultValue": "Änderungen in den Einstellungen werden nur gesichert, wenn man diese mit dem >>save settings<< Button bestätigt."
   },
   {
     "type": "section",
@@ -17,10 +17,10 @@ module.exports = [
       {
         "type": "input",
         "messageKey": "cstation1a",
-        "defaultValue": "Köln Hbf",
+        "defaultValue": "k",
         "label": "Departure <em>von</em>",
         "attributes": {
-          "placeholder": "eg: Köln Hbf or ibnr",
+          "placeholder": "eg: Köln Hbf or ibnr or k",
           "limit": 50,
           "type": "text"
         }
@@ -28,10 +28,10 @@ module.exports = [
       {
         "type": "input",
         "messageKey": "cstation1b",
-        "defaultValue": "Düsseldorf Hbf",
+        "defaultValue": "d",
         "label": "Arrival <em>nach</em>",
         "attributes": {
-          "placeholder": "eg: Düsseldorf Hbf or ibnr",
+          "placeholder": "eg: Düsseldorf Hbf or ibnr or d",
           "limit": 50,
           "type": "text"
         }
@@ -50,7 +50,7 @@ module.exports = [
        {
         "type": "input",
         "messageKey": "cstation2a",
-        "defaultValue": "Düsseldorf Hbf",
+        "defaultValue": "d",
         "label": "Departure <em>von</em>",
         "attributes": {
           "placeholder": "zB: Düsseldorf Hbf or 8000085",
@@ -61,7 +61,7 @@ module.exports = [
       {
         "type": "input",
         "messageKey": "cstation2b",
-        "defaultValue": "Köln Hbf",
+        "defaultValue": "k",
         "label": "Arrival <em>nach</em>",
         "attributes": {
           "placeholder": "eg: Köln Hbf or 8000207",
@@ -99,7 +99,7 @@ module.exports = [
         "type": "input",
         "messageKey": "favorites",
          "defaultValue": null,
-        "label": 'Favoriten <br><em><font size="1">Komma getrennte Liste mit Minutenwerten, zu der präfertierte Züge abfahren</font></em>',
+        "label": 'Favoriten <br><font size="1">Komma getrennte Liste mit Minutenwerten, zu der präfertierte Züge abfahren. Diese werden in der Anzeige bevorzugt.</font>',
         "attributes": {
           "placeholder": "eg: 07,18,21",
           "limit": 30,
@@ -110,7 +110,7 @@ module.exports = [
         "type": "input",
         "messageKey": "interval",
          "defaultValue": 1,
-        "label": 'Interval <br><em><font size="1">Aktualisierungsinterval der DB Anzeige in Minuten </font></em>',
+        "label": 'Interval <br><font size="1">Aktualisierungsinterval der DB Anzeige in Minuten</font>',
         "attributes": {
           "placeholder": "eg: 3",
           "limit": 30,
@@ -135,7 +135,7 @@ module.exports = [
       {
         "type": "slider",
         "messageKey": "scalefactor",
-        "defaultValue": 100,
+        "defaultValue": 92,
         "label": "Ziffernblatt skalieren",
         "description": 'in Prozent (keine Zeiger mehr bei 150%)', 
         "min": 50,
@@ -145,24 +145,36 @@ module.exports = [
       {
         "type": "slider",
         "messageKey": "shifttime",
-        "defaultValue": 1,
+        "defaultValue": 0,
         "label": "Position der Digitaluhr",
-        "min": 1,
-        "max": 40,
-        "step": 1
+        "min": -100,
+        "max": 100,
+        "step": 5
       },
        {
         "type": "slider",
         "messageKey": "shiftdb",
         "defaultValue": 10,
         "label": "Position der DB Anzeige",
-        "min": 1,
-        "max": 40,
-        "step": 1
-      },
+        "min": -100,
+        "max": 100,
+        "step": 5
+      }
     ]
   },
-  
+  {
+    "type": "section",
+    "items": [
+      {
+        "type": "heading",
+        "defaultValue": "Donate"
+      },
+      {
+        "type": "text",
+        "defaultValue": '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YNAK2AH7ZK4WQ">Donate</a><br> zur Motivation und Weiterentwicklung freue ich mich über eure Unterstützung!'
+      }
+      ]
+  },
   {
     "type": "submit",
     "defaultValue": "Save Settings"

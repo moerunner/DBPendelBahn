@@ -1,5 +1,5 @@
 // PebbleKit JS (pkjs)
-var myAPIKey = '7de2474761cacdfed0c93e614e1eecfd';
+var myAPIKey = '123';
 var station1A,station2A,station1B,station2B,changedir,colorinv,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
 
 var Clay = require('./clay');
@@ -128,35 +128,25 @@ station2B= settings.cstation2b;
       stationB = station2B ;
     }
     
-    var und = '&';
-    //var und = '&amp;';
-/*
-    var url = 'http://mobil.bahn.de/bin/query.exe/dox?';
-    var data = 'S=' + '8000207' + //stationA + //
-        '&amp;Z=' +  '8006713' + //stationB +  //
-        '&amp;timeSel=arrive&amp;rt=1&amp;start=1';
-    */
+
     var url='https://mobile.bahn.de/bin/mobil/query.exe/dox?';
     var data= 'S='+ stationA +
-      und + 'Z=' + stationB +
-      und + 'protocol=https:' +
-      und + 'timesel=depart' + 
+      '&Z=' + stationB +
+      '&protocol=https:' +
+      '&timesel=depart' + 
         onlynv +
-      und + 'rt=1' +
-      und + 'use_realtime_filter=1' +
-      und + 'start=1';
-    //url = new URL('http://tinyurl.com/pebtr1'); //works !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      '&rt=1' +
+      '&use_realtime_filter=1' +
+      '&start=1';
     url = url+data+':'; 
         //'&amp;start=1&amp;rt=1';
-    console.log(url);
-    //url ='http://mobil.bahn.de/bin/query.exe/dox?S=K%C3%B6ln&Z=Leverkusen%20Mitte&start=1&rt=1';
-    //console.log(url);
+console.log('passed url: ' + url);
+    //url ='http://mobil.bahn.de/bin/query.exe/dox?S=K%C3%B6ln&Z=Leverkusen%20Mitte&start=1&rt=1'; //alternativ
     request(url, 'GET', function(xmldom) {
       
-console.log("This is the DB URL: " + xmldom.responseURL);
+console.log("received URL: " + xmldom.responseURL);
       //console.log("This is the content you got: " + xmldom.responseText);
       var code =  xmldom.responseText.split('</thead>');
-console.log('heads' + code.length);
       code = code[code.length-1].split('</table>')[0];
       
 console.log("This is the content you got: " + code);
@@ -170,12 +160,12 @@ console.log('linetype: '+ typeof lines[1]);
       console.log('line'+(lines.length-1)+': '+ lines[lines.length-1]);
       
       var startloop = 0;
-      var endloop = lines.length-3;
-      console.log('endloop: '+ endloop);
+      var endloop = 2; //lines.length-3
       if (typeof lines[1] == 'undefined') {
+        console.log('lines[1] undefined');
         lines = code.split('overview timelink');
         startloop = 1;
-        endloop = lines.length-3;
+        endloop = 3;
       }
       var overview_link = [];             // link to connection
       var overview_timelink_a = [];       // boardingtimes start
@@ -190,85 +180,144 @@ console.log('linetype: '+ typeof lines[1]);
 var disptext=null;
       var j = 0;
       for (var i = startloop; endloop >= i ; i++) {
+        var check = 0;
 console.log(j++);
-console.log(lines[i]);
-          overview_link.push(lines[i].split('<a href="')[1].split('>')[0]);
-
-          overview_timelink_a.push(lines[i].split('<span class="bold">')[1].split('</span>')[0]);
-
-          overview_timelink_b.push(lines[i].split('<span class="bold">')[2].split('</span>')[0]);
-          
-
-          var alertlink = lines[i].split('tprt">')[1].charAt(1);
-
+        console.log('line: ' + lines[i]);
+        console.log(check++);
+          overview_link.push(lines[i].split('<a href="')[1].split('">')[0]);                      // link to connection
+          overview_timelink_a.push(lines[i].split('<span class="bold">')[1].split('<')[0]);// boardingtimes start
+          overview_timelink_b.push(lines[i].split('<span class="bold">')[2].split('<')[0]);// boardingtimes end
+        console.log(' halle ' + overview_timelink_a[i] + '  ' + overview_timelink_b[i]);
+          var alertlink = lines[i].split('tprt">')[1].charAt(1);// indicates which kind of delay information is given for overview_timelink_a
+        console.log('alertlink: >>'+ alertlink +'<< '+ check++);
           if (alertlink=='a'){    // true error in connection
             overview_tprt_a.push('!');
             overview_tprt_b.push('!');
           }
-          else if (alertlink=='n'){   //no information available
+          else if (alertlink=='n'){   // really no information available (bus or sth like this)
             overview_tprt_a.push('.');
             overview_tprt_b.push('.');
           }
-          else if (alertlink=='s'){
-
-            if ( lines[i].split('tprt">')[1].charAt(13)=='r'){
+          else if (alertlink == 's'){  // delay time 
+            var alertlink2 = lines[i].split('tprt">')[1].charAt(13);
+            
+            if ( alertlink2 == 'r'){  // indicates red delay time. train is simply to late
               overview_tprt_a.push(lines[i].split('"red">')[1].split('</span>')[0]);
-              overview_tprt_b.push(lines[i].split('"red">')[2].split('</span>')[0]);
+              //overview_tprt_b.push(lines[i].split('"red">')[2].split('</span>')[0]); // this will eventually fail. if second delay is not red.
+              overview_tprt_b.push('.'); // as long as not fixed better say "i dont know"
             }
-            else if ( lines[i].split('tprt">')[1].charAt(13)=='o'){
+            else if (alertlink2 == 'o'){ // indicates green delaytime (under 5min is obviously 'OK')
               overview_tprt_a.push(lines[i].split('"okmsg">')[1].split('</span>')[0]);
             
-              if ( lines[i].split('"okmsg">')[1].charAt(16)=='n'){ //no information available
+              if ( lines[i].split('"okmsg">')[1].charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
                 overview_tprt_b.push('.');
               }
               else{
-                overview_tprt_b.push(lines[i].split('"okmsg">')[2].split('</span>')[0]);
+                overview_tprt_b.push(lines[i].split('"okmsg">')[2].split('</span>')[0]); // this will eventually fail. not sure if this is always the case.
               }
             }
             else {
-              overview_tprt_a.push('.');
+              overview_tprt_a.push('.'); // no information available
               overview_tprt_b.push('.');
             }
             
           }
-
+console.log(check++);
           var overview_m = lines[i].split('"overview">')[1].split('<');
-          overview_a.push( overview_m[0]); 
-          overview_b.push( overview_m[1].split('>')[1].split('<')[0]); 
-
-          overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]);
-
+          overview_a.push( overview_m[0]);                               // changes 
+          overview_b.push( overview_m[1].split('>')[1].split('<')[0]);   // travel time
+console.log(check++);
+          overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]); // train types
+console.log(check++);
           //    var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];    
           //var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];   
 
-          if (overview_tprt_a[i] === overview_tprt_b[i]){
-              overview_tprt_c.push(overview_tprt_a[i]);
+          if (overview_tprt_a[i] === overview_tprt_b[i]){ 
+              overview_tprt_c.push(overview_tprt_a[i]);   // concanate delays
           }
           else{
               overview_tprt_c.push(overview_tprt_a[i]+overview_tprt_b[i]);
           }
 
       }
-        var favoritemin = settings.favorites.split(',');
-      for (i = endloop ;  startloop <= i ; i--) {
-         var actualmin = overview_timelink_a[i].split(':')[1];
-        for (var k = 0; favoritemin.length >= k ; k++) {
-          if(actualmin == favoritemin[k]){
-            disptext=overview_timelink_a[i]+overview_tprt_c[i]+' '+overview_iphonepfeil_a[i];
+      var dispindex = 0;
+if (settings.favorites !== ''){
+  console.log('favoritemin');
+      var favoritemin = settings.favorites.split(',');
+      
+      for (i = endloop ;  startloop <= i ; i--) { //search for next approaching favorite train. 
+        console.log('actualmin '+overview_timelink_a[i] +' ' + i + ' line ' + lines[i]);
+        var actualmin = overview_timelink_a[i].split(':')[1];  // get found minutes
+        console.log('actualmin');
+        for (var k = 0; favoritemin.length >= k ; k++) {      
+          if(actualmin == favoritemin[k]){                // compare found minutes on site with favorits from settings            
+            dispindex = i;  //overwrite everytime a favorite is found
           }
         }
       }
-      if (disptext===null){
-         disptext = overview_timelink_a[0]+overview_tprt_c[0]+' '+overview_iphonepfeil_a[0]; //+'/'+d.getMinutes();
-      }
-      Pebble.postMessage({ 
+}
+      
+      if (overview_tprt_a[dispindex] == '!'){ // Bahn say there is something wrong in regared transit
+        console.log('&amp;');
+        var url2a = overview_link[dispindex].split('&amp;');
+         console.log('&amp;');
+        var url2 = url2a.join("&");
+       console.log("url2 "+url2);
+        request(url2, 'GET', function(xmldom) {
+          var code2 =  xmldom.responseText;
+          var out = splito(splito(splito(splito(code2,overview_timelink_a[dispindex],1),overview_timelink_b[dispindex],0),'+',1),'<',0) ;
+
+          if ( out != 'undefined' ) {
+            disptext = overview_timelink_a[dispindex] +'+'+ out + '!! ' + overview_iphonepfeil_a[dispindex];
+              Pebble.postMessage({ 
             'dbtransport': {  //event
               'allinone': disptext
               }
           });
+              
+            }
+            else{
+              disptext = overview_timelink_a[dispindex] + ' ! ' + overview_iphonepfeil_a[dispindex];
+              Pebble.postMessage({ 
+            'dbtransport': {  //event
+              'allinone': disptext
+              }
+          });
+            }
+        });   
+      }
+      else{
+        disptext = overview_timelink_a[dispindex] + overview_tprt_a[dispindex] + ' ' + overview_iphonepfeil_a[dispindex];
+        Pebble.postMessage({ 
+            'dbtransport': {  //event
+              'allinone': disptext
+              }
+          });
+      }
+    
     });    //end of request
     }     //end of message.fetchdb 
 });      //end of pebble.on
+
+function splito(text,splitter,index){ //split only if defined
+  console.log('splitter:'+ splitter);
+  if (text=='undefined'){
+    console.log('str undefined');
+    return 'undefined';
+  }
+  else if (typeof text.split(splitter)[1] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
+    console.log('1 undefined');
+    return 'undefined';
+  }
+  else if (typeof text.split(splitter)[index] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
+    console.log(index + ' undefined');
+    return 'undefined';
+  }
+  else{
+    console.log('return');
+    return text.split(splitter)[index];
+  }
+}
 
 
 function restoreSettings() {
@@ -318,3 +367,11 @@ function request(url, type, callback) {
   //xhr.responseType = "text";
   xhr.send();
 }
+
+/*
+Changelog:
+v1.1:
+- Donate Button hinzugefügt
+- Limits der Slider für DB und Digitaluhr Anzeige erhöht
+v1.2:
+*/

@@ -79,8 +79,8 @@ rocky.on('draw', function(event) {
   var minutes = d.getMinutes() ;
   var hours = d.getHours();
   // Clear the screen
-  ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
-  
+  //ctx.clearRect(0, 0, ctx.canvas.clientWidth, ctx.canvas.clientHeight);
+  ctx.clearRect(0, 0, ctx.canvas.unobstructedWidth, ctx.canvas.unobstructedHeight);
   
   var cscreen ;
   var cfinger;
