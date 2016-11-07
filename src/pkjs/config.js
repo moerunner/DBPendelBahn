@@ -5,7 +5,7 @@ module.exports = [
   },
   {
     "type": "text",
-    "defaultValue": "Änderungen in den Einstellungen werden nur gesichert, wenn man diese mit dem >>save settings<< Button bestätigt."
+    "defaultValue": '<font size="2">Änderungen in den Einstellungen werden nur gesichert, wenn man diese mit dem >>save settings<< Button bestätigt.</font>'
   },
   {
     "type": "section",
@@ -98,11 +98,11 @@ module.exports = [
        {
         "type": "input",
         "messageKey": "favorites",
-         "defaultValue": null,
-        "label": 'Favoriten <br><font size="1">Komma getrennte Liste mit Minutenwerten, zu der präfertierte Züge abfahren. Diese werden in der Anzeige bevorzugt.</font>',
+         "defaultValue": '',
+        "label": 'Favoriten <br><font size="2">Komma getrennte Liste mit Minutenwerten, zu der präfertierte Züge abfahren. Diese werden in der Anzeige bevorzugt.</font>',
         "attributes": {
           "placeholder": "eg: 07,18,21",
-          "limit": 30,
+          "limit": 70,
           "type": "text"
         }
        },
@@ -110,7 +110,7 @@ module.exports = [
         "type": "input",
         "messageKey": "interval",
          "defaultValue": 1,
-        "label": 'Interval <br><font size="1">Aktualisierungsinterval der DB Anzeige in Minuten</font>',
+        "label": 'Interval <br><font size="2">Aktualisierungsinterval der DB Anzeige in Minuten</font>',
         "attributes": {
           "placeholder": "eg: 3",
           "limit": 30,

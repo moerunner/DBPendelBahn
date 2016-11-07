@@ -138,8 +138,7 @@ station2B= settings.cstation2b;
       '&rt=1' +
       '&use_realtime_filter=1' +
       '&start=1';
-    url = url+data+':'; 
-        //'&amp;start=1&amp;rt=1';
+    url = url+data;//+':'; 
 console.log('passed url: ' + url);
     //url ='http://mobil.bahn.de/bin/query.exe/dox?S=K%C3%B6ln&Z=Leverkusen%20Mitte&start=1&rt=1'; //alternativ
     request(url, 'GET', function(xmldom) {
@@ -147,26 +146,28 @@ console.log('passed url: ' + url);
 console.log("received URL: " + xmldom.responseURL);
       //console.log("This is the content you got: " + xmldom.responseText);
       var code =  xmldom.responseText.split('</thead>');
-      code = code[code.length-1].split('</table>')[0];
+      code = splito(code[code.length-1],'</table>',0);
       
-console.log("This is the content you got: " + code);
+console.log("This is the received webpage: \n" + code + '\n');
       //var code = dom.getElementsByTagName('tbody')[0].innerHTML;
       //get each line
 console.log('splitting lines');
+      /*
       var lines = code.split('</tr><tr><td colspan="4" style="padding:0 !important;"><div class="rlinebig"></div></td></tr>');
-console.log('linetype: '+ typeof lines[1]);
-      console.log('splitted lines, leng: '+ lines.length);
-      console.log('line'+(lines.length-2)+': '+ lines[lines.length-2]);
-      console.log('line'+(lines.length-1)+': '+ lines[lines.length-1]);
+console.log('splitted lines, leng: '+ lines.length);
       
       var startloop = 0;
       var endloop = 2; //lines.length-3
       if (typeof lines[1] == 'undefined') {
-        console.log('lines[1] undefined');
-        lines = code.split('overview timelink');
-        startloop = 1;
-        endloop = 3;
+        console.log('lines[1] is undefined, splitting with timelink');
+        */
+      var  lines = code.split('overview timelink');
+        console.log('timelink splitted lines, leng: '+ lines.length);
+      var  startloop = 1;
+      var endloop = lines.length -1 ;
+      /*
       }
+      */
       var overview_link = [];             // link to connection
       var overview_timelink_a = [];       // boardingtimes start
       var overview_timelink_b = [];       // boardingtimes end
@@ -178,16 +179,16 @@ console.log('linetype: '+ typeof lines[1]);
       var overview_iphonepfeil_a = [];    // train types
       //var overview_iphonepfeil_b = [];    // price
 var disptext=null;
-      var j = 0;
+    
       for (var i = startloop; endloop >= i ; i++) {
+        var inotlines = i -startloop
         var check = 0;
-console.log(j++);
-        console.log('line: ' + lines[i]);
-        console.log(check++);
-          overview_link.push(lines[i].split('<a href="')[1].split('">')[0]);                      // link to connection
-          overview_timelink_a.push(lines[i].split('<span class="bold">')[1].split('<')[0]);// boardingtimes start
+        console.log('line '+ i + ': \n' + lines[i]);
+
+          overview_link.push(lines[i].split('<a href="')[1].split('">')[0]);               // link to connection
+          overview_timelink_a.push(splito(splito(lines[i],'<span class="bold">',1),'<',0));// boardingtimes start
           overview_timelink_b.push(lines[i].split('<span class="bold">')[2].split('<')[0]);// boardingtimes end
-        console.log(' halle ' + overview_timelink_a[i] + '  ' + overview_timelink_b[i]);
+        console.log('departure: ' + overview_timelink_a[inotlines]); //+ '  ' + overview_timelink_b[inotlines]);
           var alertlink = lines[i].split('tprt">')[1].charAt(1);// indicates which kind of delay information is given for overview_timelink_a
         console.log('alertlink: >>'+ alertlink +'<< '+ check++);
           if (alertlink=='a'){    // true error in connection
@@ -222,47 +223,45 @@ console.log(j++);
             }
             
           }
-console.log(check++);
+
           var overview_m = lines[i].split('"overview">')[1].split('<');
           overview_a.push( overview_m[0]);                               // changes 
           overview_b.push( overview_m[1].split('>')[1].split('<')[0]);   // travel time
-console.log(check++);
+
           overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]); // train types
-console.log(check++);
+
           //    var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];    
           //var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];   
 
-          if (overview_tprt_a[i] === overview_tprt_b[i]){ 
-              overview_tprt_c.push(overview_tprt_a[i]);   // concanate delays
+          if (overview_tprt_a[inotlines] === overview_tprt_b[inotlines]){ 
+              overview_tprt_c.push(overview_tprt_a[inotlines]);   // concanate delays
           }
           else{
-              overview_tprt_c.push(overview_tprt_a[i]+overview_tprt_b[i]);
+              overview_tprt_c.push(overview_tprt_a[inotlines]+overview_tprt_b[inotlines]);
           }
 
       }
       var dispindex = 0;
-if (settings.favorites !== ''){
-  console.log('favoritemin');
-      var favoritemin = settings.favorites.split(',');
-      
-      for (i = endloop ;  startloop <= i ; i--) { //search for next approaching favorite train. 
-        console.log('actualmin '+overview_timelink_a[i] +' ' + i + ' line ' + lines[i]);
-        var actualmin = overview_timelink_a[i].split(':')[1];  // get found minutes
-        console.log('actualmin');
-        for (var k = 0; favoritemin.length >= k ; k++) {      
-          if(actualmin == favoritemin[k]){                // compare found minutes on site with favorits from settings            
-            dispindex = i;  //overwrite everytime a favorite is found
+      if (settings.favorites !== ''){
+          var favoritemin = settings.favorites.split(',');
+          for (i = endloop ;  startloop <= i ; i--) { //search for next approaching favorite train. 
+            var inotlinesb = i-startloop;
+            console.log('actualmin '+overview_timelink_a[inotlinesb] +' ' + i + ' line ' + lines[i]);
+            var actualmin = splito(overview_timelink_a[inotlinesb],':',1);  // get found minutes
+            console.log('actualmin');
+            for (var k = 0; favoritemin.length-1 >= k ; k++) {      
+              if(actualmin*1 == favoritemin[k]*1 && favoritemin[k] !== ""){                // compare found minutes on site with favorits from settings            
+                dispindex = inotlinesb;  //overwrite everytime a favorite is found
+              }
+            }
           }
         }
-      }
-}
+     
       
       if (overview_tprt_a[dispindex] == '!'){ // Bahn say there is something wrong in regared transit
-        console.log('&amp;');
         var url2a = overview_link[dispindex].split('&amp;');
-         console.log('&amp;');
         var url2 = url2a.join("&");
-       console.log("url2 "+url2);
+        console.log("url2 is:"+url2);
         request(url2, 'GET', function(xmldom) {
           var code2 =  xmldom.responseText;
           var out = splito(splito(splito(splito(code2,overview_timelink_a[dispindex],1),overview_timelink_b[dispindex],0),'+',1),'<',0) ;
@@ -277,7 +276,7 @@ if (settings.favorites !== ''){
               
             }
             else{
-              disptext = overview_timelink_a[dispindex] + ' ! ' + overview_iphonepfeil_a[dispindex];
+              disptext = overview_timelink_a[dispindex] + ' !! ' + overview_iphonepfeil_a[dispindex];
               Pebble.postMessage({ 
             'dbtransport': {  //event
               'allinone': disptext
@@ -299,23 +298,31 @@ if (settings.favorites !== ''){
     }     //end of message.fetchdb 
 });      //end of pebble.on
 
-function splito(text,splitter,index){ //split only if defined
-  console.log('splitter:'+ splitter);
-  if (text=='undefined'){
-    console.log('str undefined');
-    return 'undefined';
-  }
-  else if (typeof text.split(splitter)[1] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    console.log('1 undefined');
-    return 'undefined';
-  }
-  else if (typeof text.split(splitter)[index] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    console.log(index + ' undefined');
+function splito(text,splitter,index){ //split only if splitable. else return string 'undefined'
+  if (typeof text=='undefined'){
+    console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
-    console.log('return');
-    return text.split(splitter)[index];
+    console.log('splitolog: text: '+text+' \n splitter:'+ splitter);
+  }
+  
+  if (text=='undefined'){
+    console.log('splito failed. string was undefined, will not split. splitter was: '+ splitter);
+    return 'undefined';
+  }
+  else if (typeof text.split(splitter)[1] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
+    console.log('splito failed. splitter did not occur in string. did not split. splitter was: '+ splitter);
+    return 'undefined';
+  }
+  else if (typeof text.split(splitter)[index] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
+    console.log('splito failed. splitting was successfull but index: '+index + ' was  undefined. splitter was: '+ splitter);
+    return 'undefined';
+  }
+  else{
+    var result=text.split(splitter)[index];
+    console.log('splito successfull. splitter was: '+ splitter + 'return value is '+result);
+    return result;
   }
 }
 

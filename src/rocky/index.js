@@ -118,6 +118,7 @@ rocky.on('draw', function(event) {
   
   
   //draw point
+
   for (var i = 0; 12 > i ; i++) {
     //ctx.strokeStyle = cpoints;
     //ctx.beginPath();
@@ -131,9 +132,12 @@ rocky.on('draw', function(event) {
       asymetriccanvas=(Math.abs(Math.cos(arcel))-0.5)*10;
       drawHand(ctx, cx, cy, arcel, (asymetriccanvas+maxLength)*scalefactor, 5, cscreen);
     }
-   drawHand(ctx, cx, cy, arcel, (asymetriccanvas+maxLength)*scalefactor, 5, cscreen);
+   //drawHand(ctx, cx, cy, arcel, (asymetriccanvas+maxLength)*scalefactor, 5, cscreen);
   }
-       
+  if (Math.abs(w-h)<2){
+  ctx.fillStyle = cscreen;
+  ctx.rockyFillRadial(cx, cy, 0, maxLength*scalefactor, 0, 2 * Math.PI);
+  }  
   
 
   // Calculate the minute hand angle
