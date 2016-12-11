@@ -109,7 +109,7 @@ module.exports = [
       {
         "type": "input",
         "messageKey": "interval",
-         "defaultValue": 1,
+         "defaultValue": 5,
         "label": 'Interval <br><font size="2">Aktualisierungsinterval der DB Anzeige in Minuten</font>',
         "attributes": {
           "placeholder": "eg: 3",
@@ -135,7 +135,7 @@ module.exports = [
       {
         "type": "slider",
         "messageKey": "scalefactor",
-        "defaultValue": 92,
+        "defaultValue": 80,
         "label": "Ziffernblatt skalieren",
         "description": 'in Prozent (keine Zeiger mehr bei 150%)', 
         "min": 50,

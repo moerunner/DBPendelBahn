@@ -1,5 +1,5 @@
 // PebbleKit JS (pkjs)
-var myAPIKey = '123';
+var myAPIKey = 'abc';
 var station1A,station2A,station1B,station2B,changedir,colorinv,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
 
 var Clay = require('./clay');
@@ -148,10 +148,10 @@ console.log("received URL: " + xmldom.responseURL);
       var code =  xmldom.responseText.split('</thead>');
       code = splito(code[code.length-1],'</table>',0);
       
-console.log("This is the received webpage: \n" + code + '\n');
+//console.log("This is the received webpage: \n" + code + '\n');
       //var code = dom.getElementsByTagName('tbody')[0].innerHTML;
       //get each line
-console.log('splitting lines');
+//console.log('splitting lines');
       /*
       var lines = code.split('</tr><tr><td colspan="4" style="padding:0 !important;"><div class="rlinebig"></div></td></tr>');
 console.log('splitted lines, leng: '+ lines.length);
@@ -164,7 +164,11 @@ console.log('splitted lines, leng: '+ lines.length);
       var  lines = code.split('overview timelink');
         console.log('timelink splitted lines, leng: '+ lines.length);
       var  startloop = 1;
-      var endloop = lines.length -1 ;
+      var endloop = lines.length -1;
+      if (endloop - startloop > 3){
+        endloop = 4 ;
+      }
+      
       /*
       }
       */
@@ -183,7 +187,7 @@ var disptext=null;
       for (var i = startloop; endloop >= i ; i++) {
         var inotlines = i -startloop
         var check = 0;
-        console.log('line '+ i + ': \n' + lines[i]);
+        //console.log('line '+ i + ': \n' + lines[i]);
 
           overview_link.push(lines[i].split('<a href="')[1].split('">')[0]);               // link to connection
           overview_timelink_a.push(splito(splito(lines[i],'<span class="bold">',1),'<',0));// boardingtimes start
@@ -200,18 +204,22 @@ var disptext=null;
             overview_tprt_b.push('.');
           }
           else if (alertlink == 's'){  // delay time 
-            var alertlink2 = lines[i].split('tprt">')[1].charAt(13);
+            var alertlink2 = splito(lines[i],'tprt">',1).charAt(13);
+            //var alertlink2 = lines[i].split('tprt">')[1].charAt(13);
             
             if ( alertlink2 == 'r'){  // indicates red delay time. train is simply to late
               overview_tprt_a.push(lines[i].split('"red">')[1].split('</span>')[0]);
+              console.log('red');
               //overview_tprt_b.push(lines[i].split('"red">')[2].split('</span>')[0]); // this will eventually fail. if second delay is not red.
               overview_tprt_b.push('.'); // as long as not fixed better say "i dont know"
             }
             else if (alertlink2 == 'o'){ // indicates green delaytime (under 5min is obviously 'OK')
               overview_tprt_a.push(lines[i].split('"okmsg">')[1].split('</span>')[0]);
+              console.log('okmsg');
             
               if ( lines[i].split('"okmsg">')[1].charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
                 overview_tprt_b.push('.');
+                console.log('noinfo');
               }
               else{
                 overview_tprt_b.push(lines[i].split('"okmsg">')[2].split('</span>')[0]); // this will eventually fail. not sure if this is always the case.
@@ -223,13 +231,15 @@ var disptext=null;
             }
             
           }
-
+          console.log('overview');
           var overview_m = lines[i].split('"overview">')[1].split('<');
           overview_a.push( overview_m[0]);                               // changes 
+        console.log('><');
           overview_b.push( overview_m[1].split('>')[1].split('<')[0]);   // travel time
-
-          overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]); // train types
-
+        console.log('iphonepfeil');
+          //overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]); // train types
+        overview_iphonepfeil_a.push(splito(splito(lines[i],'iphonepfeil" >',1),'<',0)); // train types
+console.log('iphone2');
           //    var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];    
           //var here = lines[i].split('<span class="bold">')[2].split('</span>')[0];   
 
@@ -243,12 +253,14 @@ var disptext=null;
       }
       var dispindex = 0;
       if (settings.favorites !== ''){
+        console.log('komma');
           var favoritemin = settings.favorites.split(',');
+        console.log('komma');
           for (i = endloop ;  startloop <= i ; i--) { //search for next approaching favorite train. 
             var inotlinesb = i-startloop;
-            console.log('actualmin '+overview_timelink_a[inotlinesb] +' ' + i + ' line ' + lines[i]);
+            //console.log('actualmin '+overview_timelink_a[inotlinesb] +' ' + i + ' line ' + lines[i]);
             var actualmin = splito(overview_timelink_a[inotlinesb],':',1);  // get found minutes
-            console.log('actualmin');
+            //console.log('actualmin');
             for (var k = 0; favoritemin.length-1 >= k ; k++) {      
               if(actualmin*1 == favoritemin[k]*1 && favoritemin[k] !== ""){                // compare found minutes on site with favorits from settings            
                 dispindex = inotlinesb;  //overwrite everytime a favorite is found
@@ -261,7 +273,7 @@ var disptext=null;
       if (overview_tprt_a[dispindex] == '!'){ // Bahn say there is something wrong in regared transit
         var url2a = overview_link[dispindex].split('&amp;');
         var url2 = url2a.join("&");
-        console.log("url2 is:"+url2);
+        //console.log("url2 is:"+url2);
         request(url2, 'GET', function(xmldom) {
           var code2 =  xmldom.responseText;
           var out = splito(splito(splito(splito(code2,overview_timelink_a[dispindex],1),overview_timelink_b[dispindex],0),'+',1),'<',0) ;
@@ -300,28 +312,28 @@ var disptext=null;
 
 function splito(text,splitter,index){ //split only if splitable. else return string 'undefined'
   if (typeof text=='undefined'){
-    console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
+    //console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
-    console.log('splitolog: text: '+text+' \n splitter:'+ splitter);
+    //console.log('splitolog: text: '+text+' \n splitter:'+ splitter);
   }
   
   if (text=='undefined'){
-    console.log('splito failed. string was undefined, will not split. splitter was: '+ splitter);
+    //console.log('splito failed. string was undefined, will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else if (typeof text.split(splitter)[1] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    console.log('splito failed. splitter did not occur in string. did not split. splitter was: '+ splitter);
+    //console.log('splito failed. splitter did not occur in string. did not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else if (typeof text.split(splitter)[index] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    console.log('splito failed. splitting was successfull but index: '+index + ' was  undefined. splitter was: '+ splitter);
+    //console.log('splito failed. splitting was successfull but index: '+index + ' was  undefined. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
     var result=text.split(splitter)[index];
-    console.log('splito successfull. splitter was: '+ splitter + 'return value is '+result);
+    //console.log('splito successfull. splitter was: '+ splitter + 'return value is '+result);
     return result;
   }
 }

@@ -185,7 +185,7 @@ if(scalefactor <1.49){
 
 function drawWeather(ctx, weather, ctext,shiftdb) {
   // Create a string describing the weather
-  var weatherString = weather.celcius    + 'C,' + weather.wind + 'km,' + weather.desc;
+  var weatherString = weather.celcius    + '°C,' + weather.wind + 'km/h,' + weather.desc;
 //var weatherString = weather.fahrenheit + 'ºF, ' + weather.desc;
 
   // Draw the text, top center
