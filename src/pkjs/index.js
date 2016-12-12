@@ -1,6 +1,6 @@
 // PebbleKit JS (pkjs)
 var myAPIKey = 'abc';
-var station1A,station2A,station1B,station2B,changedir,colorinv,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
+var station1A,station2A,station1B,station2B,changedir,colorinv,standby,standbytime,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
 
 var Clay = require('./clay');
 var clayConfig = require('./config');
@@ -39,7 +39,9 @@ Pebble.addEventListener('webviewclosed', function(e) {
               'interval': settings.interval,
               'scalefactor': settings.scalefactor,
               'shifttime': settings.shifttime,
-              'shiftdb': settings.shiftdb
+              'shiftdb': settings.shiftdb,
+              'standby': settings.standby,
+              'standbytime': settings.standbytime,
               }
           });
   }
@@ -352,13 +354,17 @@ function restoreSettings() {
     scalefactor = settings.scalefactor;
     shifttime= settings.shifttime;
     shiftdb= settings.shiftdb;
+    standby= settings.standby;
+    standbytime = settings.standbytime;
     Pebble.postMessage({ 
             'settings': {  //event
               'colorinv': colorinv,
               'interval': interval,
               'scalefactor': scalefactor,
               'shifttime': shifttime,
-              'shiftdb': shiftdb
+              'shiftdb': shiftdb,
+              'standby': standby,
+              'standbytime': standbytime
               }
           });
           

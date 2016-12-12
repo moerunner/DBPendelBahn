@@ -5,7 +5,7 @@ module.exports = [
   },
   {
     "type": "text",
-    "defaultValue": '<font size="2">Änderungen in den Einstellungen werden nur gesichert, wenn man diese mit dem >>save settings<< Button bestätigt.</font>'
+    "defaultValue": '<font size="3">Änderungen in den Einstellungen werden nur gesichert, wenn man diese mit dem >>save settings<< Button bestätigt.</font>'
   },
   {
     "type": "section",
@@ -98,7 +98,7 @@ module.exports = [
        {
         "type": "input",
         "messageKey": "favorites",
-         "defaultValue": '',
+         "defaultValue": '61,62',
         "label": 'Favoriten <br><font size="2">Komma getrennte Liste mit Minutenwerten, zu der präfertierte Züge abfahren. Diese werden in der Anzeige bevorzugt.</font>',
         "attributes": {
           "placeholder": "eg: 07,18,21",
@@ -115,6 +115,23 @@ module.exports = [
           "placeholder": "eg: 3",
           "limit": 30,
           "type": "number"
+        }
+       },
+      {
+        "type": "toggle",
+        "messageKey": "standby",
+        "label": "Standby aktivieren",
+        "defaultValue": false
+      },
+      {
+        "type": "input",
+        "messageKey": "standbytime",
+        "defaultValue": '20:00,08:00',
+        "label": 'Standby Zeit <br><font size="2">Komma getrennte Liste mit 2 Zeitwerten, zwischen denen keine Verbindungen abgerufen werden (um Energie zu sparen).</font>',
+        "attributes": {
+          "placeholder": "eg: 20:00,08:00",
+          "limit": 70,
+          "type": "text"
         }
        }
     ]

@@ -7,7 +7,8 @@ var weather;
 //var debugmode = true;
 var settings = null;
 var interval = 1;
-var scalefactor;
+var thetime, standby, standbytimea, standbytimeb;
+//var scalefactor;
 var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
   'Oct', 'Nov', 'Dec'];
 var dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -16,7 +17,7 @@ rocky.postMessage({command: 'settings'});
 rocky.on('hourchange', function(event) {
   // Send a message to fetch the weather information (on startup and every hour)
   rocky.postMessage({'fetchweather': true});
-  rocky.postMessage({'fetchdb': true});
+  //rocky.postMessage({'fetchdb': true});
   rocky.postMessage({'settings': true}); //rocky.postMessage({command: 'settings'});
   
 });
@@ -25,8 +26,22 @@ rocky.on('minutechange', function(event) {
   var d = new Date();
   var minutes= d.getMinutes();
   // Send a message to fetch the DB information at interval
-  if (minutes%interval === 0.0 ){  //only look at 7, 17, 27 ...
-    rocky.postMessage({'fetchdb': true});
+  if (minutes%interval === 0.0 ){  //only look at ie. 7, 17, 27 ...
+    if (standby){
+      thetime = minutes + d.getHours()*60;
+      if (standbytimeb < standbytimea){
+        if (thetime > standbytimeb && thetime < standbytimea){
+          rocky.postMessage({'fetchdb': true});
+        }
+      } else{
+        if (thetime > standbytimeb || thetime < standbytimea){
+          rocky.postMessage({'fetchdb': true});
+        }
+      }
+
+    } else {
+      rocky.postMessage({'fetchdb': true});
+    }
   }
  
   // Tick every minute
@@ -50,6 +65,28 @@ rocky.on('message', function(event) {
     if (message.settings){
       settings = message.settings;
       interval = message.settings.interval;
+      standby = message.settings.standby;
+      if (standby){
+        standbytimea = message.settings.standbytime.split(',')[0].split(':');
+        standbytimea = standbytimea[0]*60+standbytimea[1]*1;
+        standbytimeb = message.settings.standbytime.split(',')[1].split(':');
+        standbytimeb = standbytimeb[0]*60+standbytimeb[1]*1;
+        var d = new Date();
+        thetime =   d.getMinutes()+d.getHours()*60;
+        if (standbytimeb < standbytimea){
+          if (thetime > standbytimeb && thetime < standbytimea){
+            rocky.postMessage({'fetchdb': true});
+          }
+        } else{
+          if (thetime > standbytimeb || thetime < standbytimea){
+            rocky.postMessage({'fetchdb': true});
+          }
+        }
+      
+      } else {
+        rocky.postMessage({'fetchdb': true});
+      }
+      
       //scalefactor = message.settings.scalefactor/100;
     }
 
