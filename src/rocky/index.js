@@ -276,6 +276,3 @@ function drawHand(ctx, cx, cy, angle, length, lw, color) {
 function fractionToRadian(fraction) {
   return fraction * 2 * Math.PI;
 }
-
-
-

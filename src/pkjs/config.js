@@ -17,7 +17,7 @@ module.exports = [
       {
         "type": "input",
         "messageKey": "cstation1a",
-        "defaultValue": "k",
+        "defaultValue": "K",
         "label": "Departure <em>von</em>",
         "attributes": {
           "placeholder": "eg: Köln Hbf or ibnr or k",

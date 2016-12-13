@@ -176,26 +176,26 @@ console.log('splitted lines, leng: '+ lines.length);
       */
       var overview_link = [];             // link to connection
       var overview_timelink_a = [];       // boardingtimes start
-      var overview_timelink_b = [];       // boardingtimes end
+/*      var overview_timelink_b = [];       // boardingtimes end                */
       var overview_tprt_a =[];            // delay start
-      var overview_tprt_b =[];            // delay end
-      var overview_tprt_c = [];           // concanate delays
-      var overview_a = [];                // changes 
-      var overview_b = [];                // travel time
+      var overview_tprt_b =[];            // delay end                        
+      var overview_tprt_c = [];           // concanate delays times so one get onformation of both in the end if they differ
+/*      var overview_a = [];                // changes                          */ // what is commentet out here is commentet out with '//' in the first column in the code below. this is not needed data but can be easily scraped.
+/*      var overview_b = [];                // travel time                      */
       var overview_iphonepfeil_a = [];    // train types
       //var overview_iphonepfeil_b = [];    // price
-var disptext=null;
+      var disptext=null;
     
       for (var i = startloop; endloop >= i ; i++) {
-        var inotlines = i -startloop
+        var inotlines = i -startloop;
         var check = 0;
         //console.log('line '+ i + ': \n' + lines[i]);
 
-          overview_link.push(lines[i].split('<a href="')[1].split('">')[0]);               // link to connection
+          overview_link.push(splito(splito(lines[i],'<a href="',1),'">',0));               // link to connection
           overview_timelink_a.push(splito(splito(lines[i],'<span class="bold">',1),'<',0));// boardingtimes start
-          overview_timelink_b.push(lines[i].split('<span class="bold">')[2].split('<')[0]);// boardingtimes end
+//          overview_timelink_b.push(splito(splito(lines[i],'<span class="bold">',2),'<',0));// boardingtimes end
         console.log('departure: ' + overview_timelink_a[inotlines]); //+ '  ' + overview_timelink_b[inotlines]);
-          var alertlink = lines[i].split('tprt">')[1].charAt(1);// indicates which kind of delay information is given for overview_timelink_a
+          var alertlink = splito(lines[i],'tprt">',1).charAt(1);// indicates which kind of delay information is given for overview_timelink_a
         console.log('alertlink: >>'+ alertlink +'<< '+ check++);
           if (alertlink=='a'){    // true error in connection
             overview_tprt_a.push('!');
@@ -210,21 +210,22 @@ var disptext=null;
             //var alertlink2 = lines[i].split('tprt">')[1].charAt(13);
             
             if ( alertlink2 == 'r'){  // indicates red delay time. train is simply to late
-              overview_tprt_a.push(lines[i].split('"red">')[1].split('</span>')[0]);
+              overview_tprt_a.push(splito(splito(lines[i],'"red">',1),'</span>',0));
               console.log('red');
               //overview_tprt_b.push(lines[i].split('"red">')[2].split('</span>')[0]); // this will eventually fail. if second delay is not red.
               overview_tprt_b.push('.'); // as long as not fixed better say "i dont know"
             }
             else if (alertlink2 == 'o'){ // indicates green delaytime (under 5min is obviously 'OK')
-              overview_tprt_a.push(lines[i].split('"okmsg">')[1].split('</span>')[0]);
+              overview_tprt_a.push(splito(splito(lines[i],'"okmsg">',1),'</span>',0));
               console.log('okmsg');
             
-              if ( lines[i].split('"okmsg">')[1].charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
+              if ( splito(lines[i],'"okmsg">',1).charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
                 overview_tprt_b.push('.');
                 console.log('noinfo');
               }
               else{
-                overview_tprt_b.push(lines[i].split('"okmsg">')[2].split('</span>')[0]); // this will eventually fail. not sure if this is always the case.
+                console.log('noinfo2');
+                overview_tprt_b.push(splito(splito(lines[i],'"okmsg">',2),'</span>',0)); // this will eventually fail. not sure if this is always the case.
               }
             }
             else {
@@ -233,11 +234,11 @@ var disptext=null;
             }
             
           }
-          console.log('overview');
-          var overview_m = lines[i].split('"overview">')[1].split('<');
-          overview_a.push( overview_m[0]);                               // changes 
-        console.log('><');
-          overview_b.push( overview_m[1].split('>')[1].split('<')[0]);   // travel time
+//          console.log('overview');
+//          var overview_m = splito(lines[i],'"overview">',1).split('<');
+//          overview_a.push( overview_m[0]);                               // changes 
+//        console.log('><');
+//          overview_b.push(splito(splito(overview_m[1],'>',1),'<',0));   // travel time
         console.log('iphonepfeil');
           //overview_iphonepfeil_a.push(lines[i].split('iphonepfeil">')[1].split('<')[0]); // train types
         overview_iphonepfeil_a.push(splito(splito(lines[i],'iphonepfeil" >',1),'<',0)); // train types
@@ -272,14 +273,15 @@ console.log('iphone2');
         }
      
       
-      if (overview_tprt_a[dispindex] == '!'){ // Bahn say there is something wrong in regared transit
+      if (overview_tprt_a[dispindex] == '!'){ // Bahn says there is something wrong in regarded transit
         var url2a = overview_link[dispindex].split('&amp;');
         var url2 = url2a.join("&");
-        //console.log("url2 is:"+url2);
+        console.log("url2 is:"+url2);
         request(url2, 'GET', function(xmldom) {
           var code2 =  xmldom.responseText;
-          var out = splito(splito(splito(splito(code2,overview_timelink_a[dispindex],1),overview_timelink_b[dispindex],0),'+',1),'<',0) ;
-
+          console.log('code site 2\n',code2);
+          var out = splito(splito(code2,'>+',1),'<',0) ;
+          //var out = splito(splito(splito(splito(code2,overview_timelink_a[dispindex],1),overview_timelink_b[dispindex],0),'>+',1),'<',0) ;
           if ( out != 'undefined' ) {
             disptext = overview_timelink_a[dispindex] +'+'+ out + '!! ' + overview_iphonepfeil_a[dispindex];
               Pebble.postMessage({ 
@@ -314,28 +316,30 @@ console.log('iphone2');
 
 function splito(text,splitter,index){ //split only if splitable. else return string 'undefined'
   if (typeof text=='undefined'){
-    //console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
+    console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
     //console.log('splitolog: text: '+text+' \n splitter:'+ splitter);
+    console.log('splitolog: text is defined. splitter:'+ splitter);
   }
   
   if (text=='undefined'){
-    //console.log('splito failed. string was undefined, will not split. splitter was: '+ splitter);
+    console.log('splito failed. string was "undefined", will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else if (typeof text.split(splitter)[1] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    //console.log('splito failed. splitter did not occur in string. did not split. splitter was: '+ splitter);
+    console.log('splito failed. splitter did not occur in string. did not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else if (typeof text.split(splitter)[index] == 'undefined'){  //make sure an index 0 is not accepted if not splitted
-    //console.log('splito failed. splitting was successfull but index: '+index + ' was  undefined. splitter was: '+ splitter);
+    console.log('splito failed. splitting was successfull but index: '+index + ' was  undefined. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
     var result=text.split(splitter)[index];
     //console.log('splito successfull. splitter was: '+ splitter + 'return value is '+result);
+    console.log('splito successfull. splitter was: '+ splitter);
     return result;
   }
 }
