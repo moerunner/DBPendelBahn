@@ -258,7 +258,6 @@ console.log('iphone2');
       if (settings.favorites !== ''){
         console.log('komma');
           var favoritemin = settings.favorites.split(',');
-        console.log('komma');
           for (i = endloop ;  startloop <= i ; i--) { //search for next approaching favorite train. 
             var inotlinesb = i-startloop;
             //console.log('actualmin '+overview_timelink_a[inotlinesb] +' ' + i + ' line ' + lines[i]);
@@ -271,7 +270,9 @@ console.log('iphone2');
             }
           }
         }
-     
+      if (splito(overview_timelink_a[0],':',0)*60+splito(overview_timelink_a[0],':',1)*1+30  < splito(overview_timelink_a[dispindex],':',0)*60+splito(overview_timelink_a[dispindex],':',1)*1){
+       dispindex = 0;
+     }
       
       if (overview_tprt_a[dispindex] == '!'){ // Bahn says there is something wrong in regarded transit
         var url2a = overview_link[dispindex].split('&amp;');
