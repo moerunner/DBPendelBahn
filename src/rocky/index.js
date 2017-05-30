@@ -4,6 +4,7 @@ var rocky = require('rocky');
 // Global variables to store data
 var transport;
 var weather;
+var ether;
 //var debugmode = true;
 var settings = null;
 var interval = 1;
@@ -53,10 +54,13 @@ rocky.on('message', function(event) {
   var message = event.data;
   
    
-  if (message.weather || message.dbtransport || message.settings) {
+  if (message.weather || message.ether || message.dbtransport || message.settings) {
     // Save the weather data
     if (message.weather ){
       weather = message.weather;
+    }
+    if (message.ether ){
+      ether = message.ether;
     }
     if (message.dbtransport) {
       // Save the DB data
@@ -103,7 +107,9 @@ rocky.on('draw', function(event) {
   light=false;
   var shifttime = 0;
   var shiftdb = 0;
+  var showeth = 0;
   if (settings) {
+    showeth = settings.kraken;
     light = settings.colorinv;
     shifttime = settings.shifttime;
     shiftdb=  settings.shiftdb;
@@ -213,6 +219,9 @@ if(scalefactor <1.49){
   if (transport) {
     drawtransport(ctx, transport, ctext,shiftdb);
   }
+  if ( ether && showeth){
+    drawEther(ctx, ether, ctext, shiftdb);
+  }
     // -------------------<  WEATHER  > -----------------------------
   if (weather) {
     drawWeather(ctx, weather, ctext,shiftdb);
@@ -220,6 +229,26 @@ if(scalefactor <1.49){
   // -------------------< / WEATHER  > ----------------------------
 });
 
+var my = {};
+
+my.round = function(number, precision) {
+    var factor = Math.pow(10, precision);
+    var tempNumber = number * factor;
+    var roundedTempNumber = Math.round(tempNumber);
+    return roundedTempNumber / factor;
+};
+
+
+function drawEther(ctx, ether, ctext,shiftdb) {
+  
+  var etherString = "E "+my.round(ether.eur, 1);
+    // Draw the text, top center
+  ctx.fillStyle = ctext;
+  ctx.textAlign = 'center';
+  ctx.font = '14px Gothic';
+  ctx.fillText(etherString, ctx.canvas.unobstructedWidth / 2, ctx.canvas.unobstructedHeight*0.72+shiftdb-45);
+}
+  
 function drawWeather(ctx, weather, ctext,shiftdb) {
   // Create a string describing the weather
   var weatherString = weather.celcius    + '°C,' + weather.wind + 'km/h,' + weather.desc;

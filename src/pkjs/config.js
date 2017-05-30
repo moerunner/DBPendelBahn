@@ -184,7 +184,13 @@ module.exports = [
     "items": [
       {
         "type": "heading",
-        "defaultValue": "Donate"
+        "defaultValue": "Misc"
+      },
+      {
+        "type": "toggle",
+        "messageKey": "kraken",
+        "label": "Zeige Kraken Ether Kurs",
+        "defaultValue": false
       },
       {
         "type": "text",

@@ -1,6 +1,6 @@
 // PebbleKit JS (pkjs)
-var myAPIKey = 'abc';
-var station1A,station2A,station1B,station2B,changedir,colorinv,standby,standbytime,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
+var myAPIKey = '';
+var station1A,station2A,station1B,station2B,changedir,colorinv,kraken,standby,standbytime,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
 
 var Clay = require('./clay');
 var clayConfig = require('./config');
@@ -114,13 +114,31 @@ station2B= settings.cstation2b;
  changedir=       settings.changedir;
   
   var ChangeDirectionOnTimeM = changedir.split(':')[0]*60+changedir.split(':')[1]*1;
-  
+  var etherData;
   // Get the message that was passed
   var d = new Date();
   var stationA, stationB;
   //var minutes = d.getMinutes();
   var daymins = d.getMinutes() + d.getHours() * 60;
   if (message.fetchdb) {
+    
+    var url = 'https://api.kraken.com/0/public/Ticker?pair=ETHEUR';
+    request(url, 'GET', function(dom) {  
+      
+           etherData = JSON.parse(dom.responseText);
+        console.log("This is the ether you got: " + etherData.result.XETHZEUR.a[0]);
+              
+          Pebble.postMessage({
+            'ether': {
+              // Convert from Kelvin
+              'eur': etherData.result.XETHZEUR.a[0]
+            }
+          
+          });
+      });
+    
+    
+    
     if (daymins < ChangeDirectionOnTimeM) {
       stationA = station1A;
       stationB = station1B;
@@ -270,8 +288,8 @@ console.log('iphone2');
             }
           }
         }
-      if (splito(overview_timelink_a[0],':',0)*60+splito(overview_timelink_a[0],':',1)*1+30  < splito(overview_timelink_a[dispindex],':',0)*60+splito(overview_timelink_a[dispindex],':',1)*1){
-       dispindex = 0;
+      if (splito(overview_timelink_a[0],':',0)*60+splito(overview_timelink_a[0],':',1)*1+40  < splito(overview_timelink_a[dispindex],':',0)*60+splito(overview_timelink_a[dispindex],':',1)*1){
+       dispindex = 0; // ignores favorites that are too far in future
      }
       
       if (overview_tprt_a[dispindex] == '!'){ // Bahn says there is something wrong in regarded transit
@@ -353,7 +371,7 @@ function restoreSettings() {
   if (settings) {
   //Pebble.postMessage(settings);
   
-  
+    kraken = settings.kraken;
     colorinv = settings.colorinv;
     interval = settings.interval;
     scalefactor = settings.scalefactor;
@@ -363,6 +381,7 @@ function restoreSettings() {
     standbytime = settings.standbytime;
     Pebble.postMessage({ 
             'settings': {  //event
+              'kraken': kraken,
               'colorinv': colorinv,
               'interval': interval,
               'scalefactor': scalefactor,
