@@ -1,6 +1,6 @@
 // PebbleKit JS (pkjs)
 var myAPIKey = '';
-var station1A,station2A,station1B,station2B,changedir,colorinv,kraken,standby,standbytime,onlynvbool,onlynv,interval,scalefactor,shifttime,shiftdb;
+var station1A,station2A,station1B,station2B,changedir,colorinv,kraken,standby,standbytime,onlynvbool,onlynv,clfont,interval,scalefactor,shifttime,shiftdb;
 
 var Clay = require('./clay');
 var clayConfig = require('./config');
@@ -105,16 +105,32 @@ station2B= settings.cstation2b;
     onlynv='';
   }
   
-               
-            
-        
+ //ether code ----------------------------------------------
+  var etherData;
+  if (message.fetchkraken) {
+    //https://api.kraken.com/0/public/Trades?pair=ETHEUR
+    //https://api.kraken.com/0/public/Trades?pair=ETHEUR&last=ID
+  var url = 'https://api.bitfinex.com/v2/ticker/tETHUSD';
+    request(url, 'GET', function(dom) {  
+      
+           etherData = JSON.parse(dom.responseText);
+        console.log("This is the ether you got: " + etherData[6]);
+              
+          Pebble.postMessage({
+            'ether': {
+              'eur': etherData[6]
+            }
+          
+          });
+      });          
+  }
     
   // DB Transportation code -----------------------------------------------------
 
  changedir=       settings.changedir;
   
   var ChangeDirectionOnTimeM = changedir.split(':')[0]*60+changedir.split(':')[1]*1;
-  var etherData;
+  
   // Get the message that was passed
   var d = new Date();
   var stationA, stationB;
@@ -122,20 +138,7 @@ station2B= settings.cstation2b;
   var daymins = d.getMinutes() + d.getHours() * 60;
   if (message.fetchdb) {
     
-    var url = 'https://api.kraken.com/0/public/Ticker?pair=ETHEUR';
-    request(url, 'GET', function(dom) {  
-      
-           etherData = JSON.parse(dom.responseText);
-        console.log("This is the ether you got: " + etherData.result.XETHZEUR.a[0]);
-              
-          Pebble.postMessage({
-            'ether': {
-              // Convert from Kelvin
-              'eur': etherData.result.XETHZEUR.a[0]
-            }
-          
-          });
-      });
+    
     
     
     
@@ -233,17 +236,17 @@ console.log('splitted lines, leng: '+ lines.length);
               //overview_tprt_b.push(lines[i].split('"red">')[2].split('</span>')[0]); // this will eventually fail. if second delay is not red.
               overview_tprt_b.push('.'); // as long as not fixed better say "i dont know"
             }
-            else if (alertlink2 == 'o'){ // indicates green delaytime (under 5min is obviously 'OK')
-              overview_tprt_a.push(splito(splito(lines[i],'"okmsg">',1),'</span>',0));
-              console.log('okmsg');
+            else if (alertlink2 == 'd'){ // indicates green delaytime (under 5min is obviously 'OK')
+              overview_tprt_a.push(splito(splito(lines[i],'"delay">',1),'</span>',0));
+              console.log('delay'); //former okmsg
             
-              if ( splito(lines[i],'"okmsg">',1).charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
+              if ( splito(lines[i],'"delay">',1).charAt(16)== 'n' ){ // no information available. charat 16 is ok because overview_tprt_a has exact 2 chars here 
                 overview_tprt_b.push('.');
                 console.log('noinfo');
               }
               else{
                 console.log('noinfo2');
-                overview_tprt_b.push(splito(splito(lines[i],'"okmsg">',2),'</span>',0)); // this will eventually fail. not sure if this is always the case.
+                overview_tprt_b.push(splito(splito(lines[i],'"delay">',2),'</span>',0)); // this will eventually fail. not sure if this is always the case.
               }
             }
             else {
@@ -321,7 +324,7 @@ console.log('iphone2');
         });   
       }
       else{
-        disptext = overview_timelink_a[dispindex] + overview_tprt_a[dispindex] + ' ' + overview_iphonepfeil_a[dispindex];
+        disptext = overview_timelink_a[dispindex] +'>'+ overview_tprt_a[dispindex] + ' ' + overview_iphonepfeil_a[dispindex];
         Pebble.postMessage({ 
             'dbtransport': {  //event
               'allinone': disptext
@@ -335,12 +338,12 @@ console.log('iphone2');
 
 function splito(text,splitter,index){ //split only if splitable. else return string 'undefined'
   if (typeof text=='undefined'){
-    console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
+    //console.log('splito failed. string not defined at all, will not split. splitter was: '+ splitter);
     return 'undefined';
   }
   else{
     //console.log('splitolog: text: '+text+' \n splitter:'+ splitter);
-    console.log('splitolog: text is defined. splitter:'+ splitter);
+    //console.log('splitolog: text is defined. splitter:'+ splitter);
   }
   
   if (text=='undefined'){
@@ -358,7 +361,7 @@ function splito(text,splitter,index){ //split only if splitable. else return str
   else{
     var result=text.split(splitter)[index];
     //console.log('splito successfull. splitter was: '+ splitter + 'return value is '+result);
-    console.log('splito successfull. splitter was: '+ splitter);
+    //console.log('splito successfull. splitter was: '+ splitter);
     return result;
   }
 }
@@ -371,6 +374,7 @@ function restoreSettings() {
   if (settings) {
   //Pebble.postMessage(settings);
   
+    clfont = settings.clfont;
     kraken = settings.kraken;
     colorinv = settings.colorinv;
     interval = settings.interval;
@@ -381,6 +385,7 @@ function restoreSettings() {
     standbytime = settings.standbytime;
     Pebble.postMessage({ 
             'settings': {  //event
+              'clfont': clfont,
               'kraken': kraken,
               'colorinv': colorinv,
               'interval': interval,

@@ -150,6 +150,12 @@ module.exports = [
         "defaultValue": false
       },
       {
+        "type": "toggle",
+        "messageKey": "clfont",
+        "label": "größere Digitaluhr",
+        "defaultValue": false
+      },
+      {
         "type": "slider",
         "messageKey": "scalefactor",
         "defaultValue": 80,
@@ -189,12 +195,12 @@ module.exports = [
       {
         "type": "toggle",
         "messageKey": "kraken",
-        "label": "Zeige Kraken Ether Kurs",
+        "label": "Zeige bitfinex ETHUSD Kurs",
         "defaultValue": false
       },
       {
         "type": "text",
-        "defaultValue": '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YNAK2AH7ZK4WQ">Donate</a><br> zur Motivation und Weiterentwicklung freue ich mich über eure Unterstützung!'
+        "defaultValue": '<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YNAK2AH7ZK4WQ">Donate</a><br> zur Motivation und Weiterentwicklung freue ich mich über eure Unterstützung! ETH: 0x5e9811cefA04E7b03Ab4fDA68A741a3d8f3D4Da6'
       }
       ]
   },

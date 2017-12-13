@@ -5,6 +5,7 @@ var rocky = require('rocky');
 var transport;
 var weather;
 var ether;
+var showeth=0;
 //var debugmode = true;
 var settings = null;
 var interval = 1;
@@ -18,6 +19,7 @@ rocky.postMessage({command: 'settings'});
 rocky.on('hourchange', function(event) {
   // Send a message to fetch the weather information (on startup and every hour)
   rocky.postMessage({'fetchweather': true});
+  rocky.postMessage({'fetchkraken': true});
   //rocky.postMessage({'fetchdb': true});
   rocky.postMessage({'settings': true}); //rocky.postMessage({command: 'settings'});
   
@@ -26,15 +28,18 @@ rocky.on('hourchange', function(event) {
 rocky.on('minutechange', function(event) {  
   var d = new Date();
   var minutes= d.getMinutes();
+  if (showeth){
+      rocky.postMessage({'fetchkraken': true});
+  }
   // Send a message to fetch the DB information at interval
   if (minutes%interval === 0.0 ){  //only look at ie. 7, 17, 27 ...
     if (standby){
       thetime = minutes + d.getHours()*60;
-      if (standbytimeb < standbytimea){
+      if (standbytimeb < standbytimea){ //eg 20:00,08:00
         if (thetime > standbytimeb && thetime < standbytimea){
           rocky.postMessage({'fetchdb': true});
         }
-      } else{
+      } else{ // eg 08:00,20:00
         if (thetime > standbytimeb || thetime < standbytimea){
           rocky.postMessage({'fetchdb': true});
         }
@@ -70,6 +75,7 @@ rocky.on('message', function(event) {
       settings = message.settings;
       interval = message.settings.interval;
       standby = message.settings.standby;
+      showeth = message.settings.kraken;
       if (standby){
         standbytimea = message.settings.standbytime.split(',')[0].split(':');
         standbytimea = standbytimea[0]*60+standbytimea[1]*1;
@@ -107,8 +113,10 @@ rocky.on('draw', function(event) {
   light=false;
   var shifttime = 0;
   var shiftdb = 0;
-  var showeth = 0;
+  
+  var clfont=false;
   if (settings) {
+    clfont = settings.clfont;
     showeth = settings.kraken;
     light = settings.colorinv;
     shifttime = settings.shifttime;
@@ -202,8 +210,13 @@ if(scalefactor <1.49){
 // Draw the DIGITAL CLOCK text, top center
   ctx.fillStyle = ctext;
   ctx.textAlign = 'center';
-  //ctx.font = '26px bold Leco-numbers-am-pm';
   ctx.font = '28px light numbers Leco-numbers';
+  var shiftdate;
+  shiftdate=0;
+  if(clfont){
+    ctx.font = '42px light Bitham';
+    shiftdate=12;
+  }
   ctx.fillText(addZero(hours)+':'+addZero(minutes), ctx.canvas.unobstructedWidth/2 , ctx.canvas.unobstructedHeight*0.17-shifttime ); //  ... unobstructedWidth/2, ...
   // Draw DATE underneath
   var stryear= '' + d.getFullYear();
@@ -212,7 +225,7 @@ if(scalefactor <1.49){
                     monthNames[d.getMonth()] + ' ' + stryear;
   ctx.font = '18px Gothic';
   //var month = d.getMonth()+1;
-  ctx.fillText(clockDate, ctx.canvas.unobstructedWidth/2 , ctx.canvas.unobstructedHeight*0.32-shifttime); //d.getDate()+'.'+month+'.'+d.getFullYear()
+  ctx.fillText(clockDate, ctx.canvas.unobstructedWidth/2 , ctx.canvas.unobstructedHeight*0.32-shifttime+shiftdate); //d.getDate()+'.'+month+'.'+d.getFullYear()
   
   
    // Draw the conditions (before clock hands, so it's drawn underneath them)
@@ -241,12 +254,13 @@ my.round = function(number, precision) {
 
 function drawEther(ctx, ether, ctext,shiftdb) {
   
-  var etherString = "E "+my.round(ether.eur, 1);
+  var etherString = "1E = $"+my.round(ether.eur, 1);
     // Draw the text, top center
   ctx.fillStyle = ctext;
   ctx.textAlign = 'center';
-  ctx.font = '14px Gothic';
-  ctx.fillText(etherString, ctx.canvas.unobstructedWidth / 2, ctx.canvas.unobstructedHeight*0.72+shiftdb-45);
+  //ctx.font = '18px Gothic';
+  ctx.font = '18px Gothic';
+  ctx.fillText(etherString, ctx.canvas.unobstructedWidth / 2, ctx.canvas.unobstructedHeight*0.72+shiftdb-47);
 }
   
 function drawWeather(ctx, weather, ctext,shiftdb) {
@@ -258,7 +272,7 @@ function drawWeather(ctx, weather, ctext,shiftdb) {
   ctx.fillStyle = ctext;
   ctx.textAlign = 'center';
   ctx.font = '14px Gothic';
-  ctx.fillText(weatherString, ctx.canvas.unobstructedWidth / 2, ctx.canvas.unobstructedHeight*0.72+shiftdb-10);
+  ctx.fillText(weatherString, ctx.canvas.unobstructedWidth / 2, ctx.canvas.unobstructedHeight*0.72+shiftdb-12);
 }
 
 
